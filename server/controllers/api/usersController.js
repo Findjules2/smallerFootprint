@@ -69,19 +69,19 @@ usersController.get('/search/:email', (req, res) => {
 
 // get all of the people that the user is following 
 // working
-// usersController.get("/follows", JWTVerifier, (req, res) => {
-//   db.User.findByPk(req.user.id)
-//     .then(user => {
-//       if (!user){
-//         return res
-//           .status(404)
-//           .send(`User with id ${req.user.id} not found.`)
-//       }
-//       return user.getFollowers();
-//     })
-//     .then(data => res.json(data))
-//     .catch(err => console.log(err));
-// })
+usersController.get("/follows", JWTVerifier, (req, res) => {
+  db.User.findByPk(req.user.id)
+    .then(user => {
+      if (!user){
+        return res
+          .status(404)
+          .send(`User with id ${req.user.id} not found.`)
+      }
+      return user.getFollowers();
+    })
+    .then(data => res.json(data))
+    .catch(err => console.log(err));
+})
 
 
 
