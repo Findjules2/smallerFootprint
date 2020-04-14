@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {Form, Button, Alert } from "react-bootstrap";
 import AuthContext from "../../contexts/AuthContext";
 import FriendsDisplay from "../../components/FriendsDisplay";
 import API from "../../lib/API";
 import "./style.css";
+
 
 
 const Friends = (props) => {
@@ -13,12 +14,18 @@ const Friends = (props) => {
       name: "",
       email: "",
       id: undefined
-    }) //found email    
-    const [error, setError] = useState("") //error message
-    const [isFriendFound, setIsFriendFound] = useState("No search yet") //tracking what the user has done, if they have searched or not
-    const [newFriend, setNewFriend] = useState() //save found friend for further API calls
-    const [serverMessage, setServerMessage] = useState("")
-    const [alertVariant, setAlertVariant] = useState()
+    }); //found email    
+    const [error, setError] = useState(""); //error message
+    const [isFriendFound, setIsFriendFound] = useState("No search yet"); //tracking what the user has done, if they have searched or not
+    const [newFriend, setNewFriend] = useState(); //save found friend for further API calls
+    const [serverMessage, setServerMessage] = useState("");
+    const [followMessage, setFollowMessage] = useState("");
+    const [alertVariant, setAlertVariant] = useState();
+    const [show, setShow] = useState();    
+
+    useEffect(() => {
+      console.log("re-rendering")
+    }, [show])
     
     const handleInput = event => {
       setEmail(event.target.value);    
@@ -53,24 +60,23 @@ const Friends = (props) => {
       API.Users.addToThoseIFollow(newFriend.id, userInfo.authToken)
       .then(response => {
         console.log(response)
-        if (response.data.status === "error") {
-          throw setError(response.data.message);          
-        }
-        if (response.data.status === 200 || response.data.status === 304) {
-          setServerMessage("Successfully followed this friend!");
+        // if (response.data.status === "error") {
+        //   throw setError(response.data.message);          
+        // }
+        if (response.data.status) {
+          setFollowMessage("Successfully followed this friend!");
           setAlertVariant('success');
+          setShow(true)
         }
       })
       .catch(err => {
-        // if (err.response.status === 404) {
-          
-        // }
-        // setError({ error: err.message })
+        if (err.response.status === 404) {
+          setError({ error: err.message })  
+        }
         console.log(err)
       });
     }
 
-    //function to invite friend
 
     const inviteFriend = () => {
       console.log(email)
@@ -78,6 +84,7 @@ const Friends = (props) => {
       .then(res =>{
         setServerMessage(res.data); //use this for alert. create alert hook
         setAlertVariant('success');
+        setShow(true);
       })
       .catch(err => {
         // if (err.response.status === 404) {
@@ -108,34 +115,36 @@ const Friends = (props) => {
               >Go!</Button>             
           </Form>          
           <div>
-          { isFriendFound === "No search yet" ? <div></div> : isFriendFound === "No friend found" ?
-          <div>
-          <p className="p_text_dark">Looks like your friend has not joined Smaller Footprint. You can invite them to join and create their own Challenge to lessen their carbon footprint!</p>
-          <Button 
+            { isFriendFound === "No search yet" ? <div></div> : isFriendFound === "No friend found" ?
+            <div>
+              <p className="p_text_dark">Looks like your friend has not joined Smaller Footprint. You can invite them to join and create their own Challenge to lessen their carbon footprint!
+              </p>
+              <Button 
                 className='btn btn_orange'
                 type='submit'
                 onClick={inviteFriend}
-                >Send invitation</Button>
-                <Alert className="mb-3 mt-3" variant={alertVariant}>
-                  {serverMessage}
-                </Alert>
-          </div> : isFriendFound === "Friend found" ?
-          <div>          
-            <p className="p_text_dark"> We found your friend!</p>
-            <p className="p_text_dark">{foundFriend.name}</p>
-            <p className="p_text_dark">{foundFriend.email}</p>
-            <Button 
+                >Send invitation
+              </Button>               
+              <Alert style={{ opacity: show ? 1 : 0, marginBottom: 10 }} variant={alertVariant} className="mt-3 mb-3" onClick={() => setShow(false)} show={show} dismissible>{serverMessage}
+              </Alert>      
+            </div> : isFriendFound === "Friend found" ?
+            <div>          
+              <p className="p_text_dark"> We found your friend!</p>
+              <p className="p_text_dark">{foundFriend.name}</p>
+              <p className="p_text_dark">{foundFriend.email}</p>
+              <Button 
                 className='btn btn_orange'
                 type='submit'
                 onClick={followFriend}
-                >Follow friend</Button>
-                <Alert className="mb-3 mt-3" variant={alertVariant}>
-                  {serverMessage}
-                </Alert>
-          </div> :  <div></div>          
-          }
-          </div>             
+                >Follow friend
+              </Button>
+              <Alert style={{ opacity: show ? 1 : 0, marginBottom: 10 }} variant={alertVariant} className="mt-3 mb-3" onClick={() => setShow(false)} show={show}  dismissible>{followMessage}
+              </Alert>
+            </div> :  <div></div> }              
+          </div>
+          <div className="mt-3 mb-3">
           <FriendsDisplay/>
+          </div>
         </>
     )
 }
