@@ -196,9 +196,20 @@ export default {
       });
     },
 
+    // get current score of challenge based on actions accomplished when given userId
+    // returns a number
     getCurrentScoreWhenGivenUserId: function (userId) {
       return axios.get("/api/challenges/other/" + userId, {})
     },
 
+    // searches for the last five challenges and returns an array of objects (one for each challenge) and each object has the points by catagory
+    // must pass in authToken
+    getLastFivePointsByTotal: function (authToken) {
+      return axios.get("/api/challenges/multipast", {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      })
+    }
   },
 };
