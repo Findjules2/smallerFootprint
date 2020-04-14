@@ -17,7 +17,6 @@ challengesController.get("/UserId", JWTVerifier, (req, res) => {
 
 
 // searches for the last five challenges and returns an array of objects (one for each challenge) and each object has the points by catagory
-// NOT WORKING More Work at bottom of page
 challengesController.get("/multipast", JWTVerifier, (req, res) => {
   db.Challenge.findAll({
     limit: 5,
@@ -27,17 +26,80 @@ challengesController.get("/multipast", JWTVerifier, (req, res) => {
     }
   })
     .then(challenges => {
-      if (!challenges.length) {
+      if (!challenges.length || !challenges[0]) {
         return res
           .status(404)
           .send(`Challenge with id ${req.params.id} not found.`);
       }
 
-      return Promise.all(challenges.map(val=>{
-        return val.getActions();
+      const challengeActionArray = challenges.map(val => {
+
+        return db.ChallengeAction.findAll({
+          where: {
+            ChallengeId: val.id,
+            accomplished: 1
+          }
+        })
+      })
+
+      return Promise.all(challengeActionArray);
+    })
+    .then(challengeActions => {
+      return challengeActions.map(challengeAction => challengeAction.map(individualObj => {
+        return individualObj.dataValues.ActionId;
       }))
     })
-    .then(data=> res.json(data))
+    .then(actionIdArrays => {
+
+      const arraysOfActions = actionIdArrays.map(indvidualArray => {
+        return Promise.all(indvidualArray.map(eachAcionId => {
+          return db.Action.findAll({
+            where: {
+              id: eachAcionId
+            }
+          })
+        }))
+      })
+
+      return Promise.all(arraysOfActions)
+    })
+    .then(data=> {
+      const newArray = data.map(eachArray => {
+        console.log(eachArray)
+        const newObject = {
+          food: 0,
+          travel: 0,
+          home: 0,
+          consumableItems: 0,
+          total: 0
+        }
+        eachArray.forEach(eachObject =>{
+          
+          if(eachObject[0].category === "Food"){
+            newObject.food += eachObject[0].points
+            newObject.total += eachObject[0].points
+          }else if(eachObject[0].category === "Travel"){
+            newObject.travel += eachObject[0].points
+            newObject.total += eachObject[0].points
+          }else if(eachObject[0].category === "Home"){
+            newObject.home += eachObject[0].points
+            newObject.total += eachObject[0].points
+          }else if(eachObject[0].category === "Consumable Items"){
+            newObject.consumableItems += eachObject[0].points
+            newObject.total += eachObject[0].points
+          }else{
+            return;
+          }
+
+        })
+
+        return newObject;
+      })
+
+      console.log(newArray);
+      return newArray;
+    })
+    .then(newArray => res.json(newArray))
     .catch((err) => console.log(err));
 });
 
@@ -295,63 +357,3 @@ challengesController.delete("/deletechallenge/:id", JWTVerifier, (req, res) => {
 
 
 module.exports = challengesController;
-
-// PLEASE DO NOT DELETE
-// Additional work: searching for the last five challenges and returns an array of objects (one for each challenge) and each object has the points by catagory
-
-// challengesController.get("/multipast", JWTVerifier, (req, res) => {
-//   db.Challenge.findAll({
-//     limit: 5,
-//     order: [['createdAt', 'DESC']],
-//     where: {
-//       UserId: req.user.id
-//     }
-//   })
-//     .then(challenges => {
-//       if (!challenges.length) {
-//         return res
-//           .status(404)
-//           .send(`Challenge with id ${req.params.id} not found.`);
-//       }
-
-
-
-
-//       // return Promise.all(challenges.map(val=>{
-//       //   return val.getActions();
-//       // }))
-//     })
-//     .then()
-//     .then(data=> {
-//       const newArray = data.map(eachArray => {
-//         const newObject = {
-//           food: 0,
-//           travel: 0,
-//           home: 0,
-//           consumableItems: 0
-//         }
-//         eachArray.forEach(eachObject =>{
-          
-//           if(eachObject.category === "Food"){
-//             newObject.food += eachObject.points
-//           }else if(eachObject.category === "Travel"){
-//             newObject.travel += eachObject.points
-//           }else if(eachObject.category === "Home"){
-//             newObject.home += eachObject.points
-//           }else if(eachObject.category === "Consumable Items"){
-//             newObject.consumableItems += eachObject.points
-//           }else{
-//             return;
-//           }
-
-//         })
-
-//         return newObject;
-//       })
-
-//       console.log(newArray);
-//       return newArray;
-//     })
-//     .then(newArray => res.json(newArray))
-//     .catch((err) => console.log(err));
-// });
