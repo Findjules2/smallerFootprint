@@ -67,7 +67,7 @@ usersController.get('/search/:email', (req, res) => {
 
 
 
-// get all of the people that the user is following and their current challenge point total
+// get all of the people that the user is following 
 // working
 usersController.get("/follows", JWTVerifier, (req, res) => {
   db.User.findByPk(req.user.id)
@@ -140,6 +140,11 @@ module.exports = usersController;
 //       return user.getFollowers();
 //     })
 //     .then(followers => {
+//       if(!followers.length){
+//         return res
+//           .status(404)
+//           .send(`User with the Id of ${req.user.id} is not currently following any Users.`)
+//       }
 //       let updatedFollowers = followers;
 //       const allQueries = followers.map(follower => db.Challenge.findAll({
 //         where: {
@@ -151,19 +156,40 @@ module.exports = usersController;
 //       Promise.all(allQueries)
 //         .then(allResults => {
 //           console.log(`**************allResults: `+ allResults[0]);
-//           const queries = allResults.map(result => db.ChallengeAction.findAll({
+//           const queries = allResults.map(result => {
+//             if(!result){
+//               return
+//             }
+            
+//             return db.ChallengeAction.findAll({
 //             where: {
 //               ChallengeId: result[0].id,
 //               accomplished: 1
 //             }
-//           }));
+//           })});
 //           return Promise.all(queries);
 //         })
 //         .then(challengeActions => {
-//           return challengeActions.map(actions => actions.map(action => action.dataValues.ActionId))
+//           console.log(challengeActions);
+//           return challengeActions.map(actions => {
+//             if(!actions){
+//               return
+//             }
+            
+//             return actions.map(action => {
+//               if(!action){
+//                 return
+//               }
+
+//               return action.dataValues.ActionId;
+//           })})
 //         })
 //         .then(actionIdArrays => {
 //           const actionsArray = actionIdArrays.map(individualArray => {
+//             if(!individualArray){
+//               return
+//             }
+
 //             const actionQueri = individualArray.map(val => db.Action.findAll({
 //                 where: {
 //                   id: val

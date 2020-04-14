@@ -196,5 +196,9 @@ export default {
       });
     },
 
+    getCurrentScoreWhenGivenUserId: function (userId) {
+      return axios.get("/api/challenges/other/" + userId, {})
+    },
+
   },
 };

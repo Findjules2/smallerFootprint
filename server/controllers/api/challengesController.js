@@ -118,6 +118,11 @@ challengesController.get("/other/:userId", (req, res) => {
     limit: 1
   })
   .then((val) => {
+    if(!val[0]){
+      return res
+        .status(404)
+        .send(`User ${req.params.userId} has no current challenge.`)
+    }
     db.ChallengeAction.findAll({
       where: {
         ChallengeId: val[0].id,
@@ -125,6 +130,12 @@ challengesController.get("/other/:userId", (req, res) => {
       }
     })
     .then((data) => {
+      if(!data[0]){
+        return res
+          .status(404)
+          .send(`User ${req.params.userId} has no current challenge.`)
+      }
+
       return (data.map(val => {
         return val.dataValues.ActionId
       }));
