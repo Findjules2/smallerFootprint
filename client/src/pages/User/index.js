@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap";
 import AuthContext from "../../contexts/AuthContext";
 import Selected from "../../components/SelectedChallenges";
+import Chart from "../../components/Chartjs"
 import { FiPlusSquare } from "react-icons/fi";
 import { FiInfo } from "react-icons/fi";
 // import CreateChallenge from "../../components/CreateChallenge";
@@ -27,6 +28,7 @@ const User = (props) => {
     // ActionId: 0
     })
   const [currScore, setCurrScore]=useState(0)
+  const [chartInstance, setChartInstance] = useState([]);
 
   useEffect(() => {
     API.Actions.getAll(userInfo.authToken).then(({ data }) =>{
@@ -158,7 +160,11 @@ const User = (props) => {
         Please choose from the actions below to create your first challenge!
       </h3>
       {allActions && (
-        <Selected selections={theSelected} deleteHandler={deleteChallenge} completeHandler={completeTheAction} />
+        <Selected selections={theSelected} deleteHandler={deleteChallenge} completeHandler={completeTheAction}>
+          {/* <Chart
+          /> */}
+
+        </Selected>
       )}
       <Accordion defaultActiveKey="0">
         <Card>

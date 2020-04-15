@@ -2,6 +2,7 @@ import React from "react";
 import { Tabs, Tab, Row, Col, Nav, Button } from "react-bootstrap";
 import { TiDeleteOutline } from "react-icons/ti";
 import { FiSave } from "react-icons/fi";
+import Chart from "../../components/Chartjs"
 
 const SelectedChallenges = (props) => {
   console.log(props);
@@ -71,6 +72,17 @@ const SelectedChallenges = (props) => {
                     points: {action.points} - {action.name} -{" "}
                     {action.description}
                   </p>
+                  </div>
+                )}})}
+              </Tab>
+              <Tab eventKey="Chart" title="Chart">
+              {props.selections.map((action, position) => {
+                if(action.ChallengeAction.accomplished){
+
+                return (
+                  <div key={action.id + position}>
+                    <Chart/>
+                  
                   </div>
                 )}})}
               </Tab>
