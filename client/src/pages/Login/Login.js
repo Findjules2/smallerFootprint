@@ -24,19 +24,19 @@ class Login extends Component {
       .catch((err) => {
         let message;
         console.log(err);
-        // switch (err.response.status) {
-        //   case 401:
-        //     message =
-        //       "Sorry, that email/password combination is not valid. Please try again.";
-        //     break;
-        //   case 500:
-        //     message = "Server error. Please try again later.";
-        //     break;
-        //   default:
-        //     message = "Unknown error.";
-        // }
+        switch (err.response.status) {
+          case 401:
+            message =
+              "Sorry, that email/password combination is not valid. Please try again.";
+            break;
+          case 500:
+            message = "Server error. Please try again later.";
+            break;
+          default:
+            message = "Unknown error.";
+        }
 
-        // this.setState({ error: message });
+        this.setState({ error: message });
       });
   };
   componentDidMount(props){
